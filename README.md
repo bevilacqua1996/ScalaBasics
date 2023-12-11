@@ -28,3 +28,9 @@
 - Pocket Calculator
   - Use of exceptions
   - Implementing Custom exceptions
+  
+### Part 3
+
+- FunctionsBasics
+  - Introduction
+  - Curried functions

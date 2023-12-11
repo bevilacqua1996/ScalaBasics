@@ -11,9 +11,9 @@ abstract class MyList[+A] {
   def printElements : String
   override def toString : String = "String = [ " + printElements + " ]"
 
-  def map[B](transformer: MyTransformer[A,B]): MyList[B]
-  def filter(predicate: MyPredicate[A]): MyList[A]
-  def flatMap[B](transformer: MyTransformer[A,MyList[B]]): MyList[B]
+  def map[B](transformer: (A) => B): MyList[B]
+  def filter(predicate: (A) => Boolean): MyList[A]
+  def flatMap[B](transformer: (A) => MyList[B]): MyList[B]
 
   def ++[B >: A](myList: MyList[B]) : MyList[B]
 
@@ -25,9 +25,9 @@ case object Empty extends MyList[Nothing] {
   override def isEmpty: Boolean = true
   override def add[B>:Nothing](element: B): MyList[B] = GenericList(element, this)
   override def printElements: String = ""
-  override def map[B](transformer: MyTransformer[Nothing, B]): MyList[B] = Empty
-  override def filter(predicate: MyPredicate[Nothing]): MyList[Nothing] = Empty
-  override def flatMap[B](transformer: MyTransformer[Nothing, MyList[B]]): MyList[B] = Empty
+  override def map[B](transformer: (Nothing) => B): MyList[B] = Empty
+  override def filter(predicate: (Nothing) => Boolean): MyList[Nothing] = Empty
+  override def flatMap[B](transformer: (Nothing) => MyList[B]): MyList[B] = Empty
   override def ++[B >: Nothing](myList: MyList[B]) : MyList[B] = myList
 }
 
@@ -48,30 +48,22 @@ case class GenericList[+A](h: A, t: MyList[A]) extends MyList[A] {
     else s"${listString} ${this.tail.printElements}"
   }
 
-  def filter(predicate: MyPredicate[A]): MyList[A] = {
-    if(predicate.test(h)) GenericList(h, t.filter(predicate))
+  def filter(predicate: (A) => Boolean): MyList[A] = {
+    if(predicate(h)) GenericList(h, t.filter(predicate))
     else t.filter(predicate)
   }
 
-  def map[B](transformer: MyTransformer[A,B]): MyList[B] = {
-    GenericList(transformer.transform(h), t.map(transformer))
+  def map[B](transformer: (A) => B): MyList[B] = {
+    GenericList(transformer(h), t.map(transformer))
   }
 
-  override def flatMap[B](transformer: MyTransformer[A, MyList[B]]): MyList[B] = {
-    transformer.transform(h) ++ t.flatMap(transformer)
+  override def flatMap[B](transformer: (A) => MyList[B]): MyList[B] = {
+    transformer(h) ++ t.flatMap(transformer)
   }
 
   override def ++[B >: A](myList: MyList[B]): MyList[B] = {
     GenericList[B](h, tail ++ myList)
   }
-}
-
-trait MyPredicate[-T] {
-  def test(element: T): Boolean
-}
-
-trait MyTransformer[-A, B] {
-  def transform(element: A): B
 }
 
 object TestMyList extends App {
@@ -90,15 +82,12 @@ object TestMyList extends App {
   println(myListString)
   println(stringList)
 
-  println(newIntegerList.map(new MyTransformer[Int, Int] {
-    override def transform(elem: Int): Int = elem * 2
-  }).toString)
+  // Use of Function example (much less code)
+  val functionMap: Int => Int = _ * 2
+  println(newIntegerList.map(functionMap).toString)
 
-  println(newIntegerList.filter(new MyPredicate[Int] {
-    override def test(element: Int): Boolean = element%3==0
-  }).toString)
+  // Use of Function example (much less code)
+  println(newIntegerList.filter((element: Int) => element % 3 == 0).toString)
 
-  println(newIntegerList.flatMap(new MyTransformer[Int, MyList[Int]] {
-    override def transform(element: Int): MyList[Int] = GenericList(element, GenericList(element+1, Empty))
-  }).toString)
+  println(newIntegerList.flatMap((element: Int) => GenericList(element, GenericList(element + 1, Empty))).toString)
 }
