@@ -16,4 +16,10 @@ object FunctionsBasics extends App {
   println(multiply(3))
   println(specialMultiply(4)(3)) // curried function
 
+  def toCurry(f: (Int, Int) => Int): (Int => Int => Int) =
+    x => y => f(x,y)
+
+  def fromCurry(f: (Int => Int => Int)) : (Int, Int) => Int =
+    (x, y) => f(x)(y)
+  
 }
