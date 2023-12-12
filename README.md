@@ -41,3 +41,8 @@
 - ServerConnection
   - Option
   - Scala Try
+
+### Part 4
+
+- Patterns
+  - Patterns Matching
