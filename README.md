@@ -34,3 +34,10 @@
 - FunctionsBasics
   - Introduction
   - Curried functions
+- Network
+  - Maps
+  - Tuples
+  - Lists
+- ServerConnection
+  - Option
+  - Scala Try
